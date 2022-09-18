@@ -6,29 +6,85 @@
 #include<queue>
 using namespace std;
 
+void printstack(stack<string> stack){    
+        cout<<endl<<"stack top= "<<stack.top()<<endl;    
+}
+
 int main(){
     string word;
     string domain="mindpowerindia";
-    ifstream readfile("view-source_https___mindpowerindia.com.html");
+    ifstream readfile("testfile.php");
     stack<string> stack;
     queue<string> queue;
     while (readfile >> word) {
-        //Testcase 1: catch comments        
-        if((word=="*/" || word=="-->")&& !stack.empty() && stack.top()==word ){
+        //catch html comment and ignore operations on the code
+        if(word.find("<!--")!=-1){
+            cout<<"<!--";
+            stack.push("<!--");
+            // printstack(stack);
+        }
+        
+        else if(!stack.empty() && word.find("-->")!=-1 && stack.top()=="<!--") {
+            cout<<"-->";
+            printstack(stack);
             stack.pop();
         }
-        else if(!stack.empty()) continue;
-        else if( word=="/*" || word=="<! --"){
-            if(word=="/*") stack.push("/*");
-            else stack.push("<! --");
+        
+        else if(!stack.empty() &&  stack.top()=="<!--") {
+            cout<<"inside comments";
+            continue;
         }
-        else if(word=="//" || word=="#"){
-            getline (readfile, word);
-        }
+        
+        //catch php opening tag
+        else if(word=="<?php"){
+            cout<<"<?php";
+            stack.push("<?php");
+            while(readfile>>word){  
+                //catch php comments    
+                if(!stack.empty() && stack.top()=="/*"){
+                    cout<<"/*";
+                    while(readfile>>word){
+                        if(word.find("*/")!=-1) {
+                            cout<<"*/";
+                            stack.pop();
+                            break;
+                        }
+                    }
+                }
+                else if(word.find("//")!=-1 || word.find("#")!=-1){
+                    cout<<" phpComment ";
+                    getline (readfile, word);
+                    continue;
+                }  
+                else if(word.find("/*")!=-1)  {
+                    cout<<"/*";
+                    stack.push("/*");
+                }
+
+                //catch php include
+                else if(word.find("include")!=-1){
+                    //store the link
+                }
+                
+
+                //catch php closing tag
+                else if(word.find("?>")!=-1) {
+                    cout<<"?>";
+                    if(stack.top()=="<?php"){
+                        stack.pop();  
+                        break;
+                    }
+                }   
+                else{
+                    cout<<word;
+                }
+                
+            }
+        }  
+       
         
         //Testcase 2: make a queue of all the desired urls
-        
-        
+    
     }
     readfile.close();
     return 0;
