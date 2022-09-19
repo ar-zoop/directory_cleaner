@@ -1,6 +1,6 @@
 <html>
 <head>
-	<?php include 'header.php' ?>
+	<?php include 'header.php'?>
 	<?php include 'pixel-all.php' ?>	
 	<?php include 'bootstrap-cs.php' ?>	
 	<?php include  'cyrus-syles-all-mpi.php' ?>	

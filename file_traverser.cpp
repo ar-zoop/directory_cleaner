@@ -6,10 +6,6 @@
 #include<queue>
 using namespace std;
 
-void printstack(stack<string> stack){    
-        cout<<endl<<"stack top= "<<stack.top()<<endl;    
-}
-
 int main(){
     string word;
     string domain="mindpowerindia";
@@ -18,73 +14,77 @@ int main(){
     queue<string> queue;
     while (readfile >> word) {
         //catch html comment and ignore operations on the code
-        if(word.find("<!--")!=-1){
-            cout<<"<!--";
-            stack.push("<!--");
-            // printstack(stack);
+        if(word.find("<!--")!=-1){      
+            stack.push("<!--");            
         }
         
-        else if(!stack.empty() && word.find("-->")!=-1 && stack.top()=="<!--") {
-            cout<<"-->";
-            printstack(stack);
+        else if(!stack.empty() && word.find("-->")!=-1 && stack.top()=="<!--") {            
             stack.pop();
         }
         
-        else if(!stack.empty() &&  stack.top()=="<!--") {
-            cout<<"inside comments";
+        else if(!stack.empty() &&  stack.top()=="<!--") {           
             continue;
         }
         
         //catch php opening tag
-        else if(word=="<?php"){
-            cout<<"<?php";
+        else if(word=="<?php"){            
             stack.push("<?php");
-            while(readfile>>word){  
-                //catch php comments    
-                if(!stack.empty() && stack.top()=="/*"){
-                    cout<<"/*";
+            while(readfile>>word){                  
+                if(!stack.empty() && stack.top()=="/*"){                   
                     while(readfile>>word){
                         if(word.find("*/")!=-1) {
-                            cout<<"*/";
                             stack.pop();
                             break;
                         }
                     }
                 }
-                else if(word.find("//")!=-1 || word.find("#")!=-1){
-                    cout<<" phpComment ";
+                else if(word.find("//")!=-1 || word.find("#")!=-1){                   
                     getline (readfile, word);
                     continue;
                 }  
-                else if(word.find("/*")!=-1)  {
-                    cout<<"/*";
+                else if(word.find("/*")!=-1)  {                    
                     stack.push("/*");
                 }
-
-                //catch php include
-                else if(word.find("include")!=-1){
-                    //store the link
-                }
                 
-
                 //catch php closing tag
-                else if(word.find("?>")!=-1) {
-                    cout<<"?>";
+                else if(word.find("?>")!=-1) {                 
                     if(stack.top()=="<?php"){
                         stack.pop();  
                         break;
                     }
                 }   
-                else{
-                    cout<<word;
+                //catch php include
+                else if(word=="include"){
+                    //store the link
+                    // cout<<"p1";
+                    readfile >> word;
+                    // cout<<"p2";
+                    if((word.find("\"")!=-1 || word.find("'")!=-1) && word.find("?>")){
+                        queue.push(word);                        
+                      
+                        if(stack.top()=="<?php"){
+                        stack.pop();  
+                        break;
+                        }
+                    }
+                    else if(word.find("\"")!=-1 || word.find("'")!=-1){
+                        queue.push(word);                        
+                  
+                    }
                 }
-                
             }
         }  
-       
+        //Test case 2: make a queue of all the desired urls
         
-        //Testcase 2: make a queue of all the desired urls
-    
+        
+       
+        else if(word.find("src=")!=-1){
+            queue.push(word);
+        }
+       else if(word.find("href=")!=-1){
+            queue.push(word);
+        }
+        
     }
     readfile.close();
     return 0;
