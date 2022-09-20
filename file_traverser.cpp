@@ -6,10 +6,46 @@
 #include<queue>
 using namespace std;
 
+string trim(string word){
+    int n=word.length();
+    string ret;
+    int i=0,j=n-1;
+    int idxs=-1, idxe=-1;
+    while(i<j){
+        if((word[i] =='\"'|| word[i] =='\'')&&idxs==-1){
+            idxs=i;
+        }
+        if((word[j] =='\"'|| word[j] =='\'')&&idxe==-1){
+            idxe=j;
+            // cout<<"#";
+        }
+        else if(idxe!=-1 && idxs!=-1 ){
+            break;
+        }
+        else{
+            i++;
+            j--;
+        }
+    }
+    // cout<<word<<" ";
+    // cout<<idxs<<" "<<idxe<<endl;
+    ret.assign(word, idxs, idxe-idxs+1);
+    return ret;
+}
+
+void printqueue(queue<string>queue){
+    int count=0;
+    while(!queue.empty()){
+    cout<<queue.front()<<endl;
+    queue.pop();
+    count++;}
+    cout<<count;
+}
+
 int main(){
     string word;
     string domain="mindpowerindia";
-    ifstream readfile("testfile.php");
+    ifstream readfile("index.php");
     stack<string> stack;
     queue<string> queue;
     while (readfile >> word) {
@@ -60,6 +96,7 @@ int main(){
                     readfile >> word;
                     // cout<<"p2";
                     if((word.find("\"")!=-1 || word.find("'")!=-1) && word.find("?>")){
+                        word=trim(word);
                         queue.push(word);                        
                       
                         if(stack.top()=="<?php"){
@@ -68,6 +105,7 @@ int main(){
                         }
                     }
                     else if(word.find("\"")!=-1 || word.find("'")!=-1){
+                        word=trim(word);
                         queue.push(word);                        
                   
                     }
@@ -75,17 +113,17 @@ int main(){
             }
         }  
         //Test case 2: make a queue of all the desired urls
-        
-        
-       
         else if(word.find("src=")!=-1){
+            word=trim(word);
             queue.push(word);
         }
        else if(word.find("href=")!=-1){
+            word=trim(word);
             queue.push(word);
         }
         
     }
+    
     readfile.close();
     return 0;
 }
