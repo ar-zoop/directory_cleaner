@@ -4,7 +4,12 @@
 #include <string>
 #include <chrono>  
 #include<queue>
+#include <map>
+
 using namespace std;
+
+queue<string> links_unvisited;
+map <string,int>links_visited;
 
 string trim(string word){
     int n=word.length();
@@ -13,11 +18,11 @@ string trim(string word){
     int idxs=-1, idxe=-1;
     while(i<j){
         if((word[i] =='\"'|| word[i] =='\'')&&idxs==-1){
-            idxs=i;
+            idxs=i+1;
         }
         if((word[j] =='\"'|| word[j] =='\'')&&idxe==-1){
-            idxe=j;
-            // cout<<"#";
+            idxe=j-1;
+            
         }
         else if(idxe!=-1 && idxs!=-1 ){
             break;
@@ -27,27 +32,25 @@ string trim(string word){
             j--;
         }
     }
-    // cout<<word<<" ";
-    // cout<<idxs<<" "<<idxe<<endl;
+
     ret.assign(word, idxs, idxe-idxs+1);
     return ret;
 }
 
-void printqueue(queue<string>queue){
+void printqueue(queue<string>links_unvisited){
     int count=0;
-    while(!queue.empty()){
-    cout<<queue.front()<<endl;
-    queue.pop();
+    while(!links_unvisited.empty()){
+    links_unvisited.pop();
     count++;}
     cout<<count;
 }
 
-int main(){
+void traverse(string file, string domain){
+    cout<<file<<endl;
     string word;
-    string domain="mindpowerindia";
-    ifstream readfile("index.php");
-    stack<string> stack;
-    queue<string> queue;
+    ifstream readfile(file);
+    if (!readfile.is_open()) return;
+    stack<string> stack;    
     while (readfile >> word) {
         //catch html comment and ignore operations on the code
         if(word.find("<!--")!=-1){      
@@ -92,12 +95,15 @@ int main(){
                 //catch php include
                 else if(word=="include"){
                     //store the link
-                    // cout<<"p1";
+                    
                     readfile >> word;
-                    // cout<<"p2";
+                    
                     if((word.find("\"")!=-1 || word.find("'")!=-1) && word.find("?>")){
                         word=trim(word);
-                        queue.push(word);                        
+                        if(links_visited.find(word)==links_visited.end()){
+                            links_unvisited.push(word);                        
+                            links_visited[word]=1;
+                        }
                       
                         if(stack.top()=="<?php"){
                         stack.pop();  
@@ -106,8 +112,10 @@ int main(){
                     }
                     else if(word.find("\"")!=-1 || word.find("'")!=-1){
                         word=trim(word);
-                        queue.push(word);                        
-                  
+                        if(links_visited.find(word)==links_visited.end()){
+                            links_unvisited.push(word);                        
+                            links_visited[word]=1;
+                        }
                     }
                 }
             }
@@ -115,70 +123,35 @@ int main(){
         //Test case 2: make a queue of all the desired urls
         else if(word.find("src=")!=-1){
             word=trim(word);
-            queue.push(word);
+            if(links_visited.find(word)==links_visited.end()){
+                links_unvisited.push(word);                        
+                links_visited[word]=1;
+            }
         }
        else if(word.find("href=")!=-1){
             word=trim(word);
-            queue.push(word);
+            if(links_visited.find(word)==links_visited.end()){
+                links_unvisited.push(word);                        
+                links_visited[word]=1;
+            }
         }
         
     }
-    
+    // printqueue(queue);
     readfile.close();
+    return;
+}
+
+int main(){
+    string filename="index.php";
+    string domain="mindpowerindia.com";
+    traverse(filename, domain);    
+    links_visited[filename]=1;
+    while(!links_unvisited.empty()){
+    
+        traverse(links_unvisited.front(), domain);
+        links_unvisited.pop();
+    }
     return 0;
 }
 
-//it uses using namespace std::chrono;
-//Before function call
-//auto start = high_resolution_clock::now();
-// After function call
-// auto stop = high_resolution_clock::now();
-//auto duration = duration_cast<microseconds>(stop - start)
-//cout << duration.count() << endl;
-
-//eg
-/*     
-// C++ program to find out execution time of
-// of functions
-#include <algorithm>
-#include <chrono>
-#include <iostream>
-#include<vector>
-using namespace std;
-using namespace std::chrono;
- 
-// For demonstration purpose, we will fill up
-// a vector with random integers and then sort
-// them using sort function. We fill record
-// and print the time required by sort function
-int main()
-{
- 
-    vector<int> values(10000);
- 
-    // Generate Random values
-    auto f = []() -> int { return rand() % 10000; };
- 
-    // Fill up the vector
-    generate(values.begin(), values.end(), f);
- 
-    // Get starting timepoint
-    auto start = high_resolution_clock::now();
- 
-    // Call the function, here sort()
-    sort(values.begin(), values.end());
- 
-    // Get ending timepoint
-    auto stop = high_resolution_clock::now();
- 
-    // Get duration. Substart timepoints to
-    // get duration. To cast it to proper unit
-    // use duration cast method
-    auto duration = duration_cast<microseconds>(stop - start);
- 
-    cout << "Time taken by function: "
-         << duration.count() << " microseconds" << endl;
- 
-    return 0;
-}
-*/
