@@ -5,11 +5,28 @@
 #include <chrono>  
 #include<queue>
 #include <map>
-
+#include <cctype>
 using namespace std;
 
 queue<string> links_unvisited;
 map <string,int>links_visited;
+
+string extension(string filename){
+    string ext="";
+    
+    stack<char>holder;
+    int n=filename.length();
+    for(int i=n-1; filename[i]!='.'; i--){
+        holder.push(filename[i]);
+    }
+    
+    while(!holder.empty()){
+        ext+=holder.top();
+        holder.pop();    
+    }
+    
+    return ext;
+}
 
 string trim(string word){
     int n=word.length();
@@ -37,13 +54,6 @@ string trim(string word){
     return ret;
 }
 
-void printqueue(queue<string>links_unvisited){
-    int count=0;
-    while(!links_unvisited.empty()){
-    links_unvisited.pop();
-    count++;}
-    cout<<count;
-}
 
 void traverse(string file, string domain){
     cout<<file<<endl;
@@ -137,7 +147,6 @@ void traverse(string file, string domain){
         }
         
     }
-    // printqueue(queue);
     readfile.close();
     return;
 }
@@ -145,11 +154,17 @@ void traverse(string file, string domain){
 int main(){
     string filename="index.php";
     string domain="mindpowerindia.com";
-    traverse(filename, domain);    
     links_visited[filename]=1;
-    while(!links_unvisited.empty()){
-    
-        traverse(links_unvisited.front(), domain);
+    traverse(filename, domain);        
+    while(!links_unvisited.empty()){   
+        string ext=extension(links_unvisited.front());        
+        // cout<<links_unvisited.front()<<endl;
+        for(int i=0 ;i<ext.length(); i++){
+            if(isalpha(ext[i]))ext[i]=tolower(ext[i]);
+        }
+        // cout<<ext<<endl;
+        if(ext!="png" && ext!="jpg" && ext!="jpeg" && ext!="css" &&ext!="js")        
+            traverse(links_unvisited.front(), domain);
         links_unvisited.pop();
     }
     return 0;
