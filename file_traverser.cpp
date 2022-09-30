@@ -6,6 +6,8 @@
 #include<queue>
 #include <map>
 #include <cctype>
+#include <direct.h>
+// #include <filesystem>
 using namespace std;
 
 queue<string> links_unvisited;
@@ -151,21 +153,44 @@ void traverse(string file, string domain){
     return;
 }
 
+int make_directory(const char* name) {
+  return (_mkdir(name));
+}
+
 int main(){
+    int verify;
+    char path[100];
+    cout<<"Enter the path of the new folder";
+    cin>>path;
+    // bool verify=create_directories(path);/
+    // verify= _mkdir(path);
+    make_directory(path);
+    while(verify==-1){
+        cout<<"Folder not created: try again: "<<endl;
+        // cout<<"Error: "<<strerror(errno);
+        cout<<"Enter the path of the new folder";
+        cin>>path;
+        // verify= _mkdir(path);
+        // bool verify=create_directories(path);
+    }
+    cout<<"File created"<<endl;
     string filename="index.php";
     string domain="mindpowerindia.com";
     links_visited[filename]=1;
     traverse(filename, domain);        
     while(!links_unvisited.empty()){   
-        string ext=extension(links_unvisited.front());        
-        // cout<<links_unvisited.front()<<endl;
+        string ext=extension(links_unvisited.front()); //find out extensions of the files
         for(int i=0 ;i<ext.length(); i++){
-            if(isalpha(ext[i]))ext[i]=tolower(ext[i]);
+            if(isalpha(ext[i]))ext[i]=tolower(ext[i]); //generalize the extension
         }
-        // cout<<ext<<endl;
-        if(ext!="png" && ext!="jpg" && ext!="jpeg" && ext!="css" &&ext!="js")        
+        if(ext!="png" && ext!="jpg" && ext!="jpeg" && ext!="css" &&ext!="js")     
             traverse(links_unvisited.front(), domain);
         links_unvisited.pop();
+    }
+
+    map <string,int>::iterator imp;
+    for(imp=links_visited.begin(); imp!=links_visited.end(); imp++){
+        copy_file(imp->first, path);
     }
     return 0;
 }
