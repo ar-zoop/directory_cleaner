@@ -7,9 +7,10 @@
 #include <map>
 #include <cctype>
 #include <direct.h>
+#include <cstring>
 // #include <filesystem>
 using namespace std;
-
+// namespace fs = std::filesystem;
 queue<string> links_unvisited;
 map <string,int>links_visited;
 
@@ -58,7 +59,7 @@ string trim(string word){
 
 
 void traverse(string file, string domain){
-    cout<<file<<endl;
+    // cout<<file<<endl;
     string word;
     ifstream readfile(file);
     if (!readfile.is_open()) return;
@@ -156,6 +157,28 @@ void traverse(string file, string domain){
 int make_directory(const char* name) {
   return (_mkdir(name));
 }
+void copy(FILE *source, FILE *target) 
+{ 
+	char ch; 
+	system("cd D:"); 
+	if(source != NULL) 
+	{ 
+		while((ch=fgetc(source))!=EOF) 
+		{ 
+			fputc(ch,target); 
+		} 
+		fclose(source); 
+		fclose(target); 
+		// printf("Copied successfully...\n"); 
+	} 
+	else 
+	{ 
+		fclose(source); 
+		fclose(target); 
+		printf("Press any key to exit...\n"); 
+	} 
+	 
+} 
 
 int main(){
     int verify;
@@ -168,12 +191,12 @@ int main(){
     while(verify==-1){
         cout<<"Folder not created: try again: "<<endl;
         // cout<<"Error: "<<strerror(errno);
-        cout<<"Enter the path of the new folder";
+        cout<<"Enter the path of the new folder"<<endl;
         cin>>path;
         // verify= _mkdir(path);
         // bool verify=create_directories(path);
     }
-    cout<<"File created"<<endl;
+    cout<<"Folder created"<<endl;
     string filename="index.php";
     string domain="mindpowerindia.com";
     links_visited[filename]=1;
@@ -189,9 +212,40 @@ int main(){
     }
 
     map <string,int>::iterator imp;
+    cout<<"Copying has started. "<<endl;
     for(imp=links_visited.begin(); imp!=links_visited.end(); imp++){
-        copy_file(imp->first, path);
+        // cout<<imp->first<<endl;
+        int n=(imp->first).length();
+        string str=imp->first;
+        char temp[n+1];
+        strcpy(temp, str.c_str()); 
+        FILE *source = fopen(temp,"r+"); 
+        FILE *target = fopen(path,"a+");
+        /*
+        //converting from *char to LPCWSTR to use in CopyFile function
+        const WCHAR *pwcsName;
+        const WCHAR *pwcsName2;
+        int size = MultiByteToWideChar(CP_ACP, 0, path, -1, NULL, 0);
+        pwcsName = new WCHAR[100];
+        pwcsName2 = new WCHAR[100];
+        string temp=imp->first;
+        char fName[1000];
+        for(int i=0;temp[i]!='\0'; i++ ){
+            fName[i]=temp[i];
+        }
+        MultiByteToWideChar(CP_ACP, 0, fName, -1, (LPWSTR)pwcsName2, size);
+        MultiByteToWideChar(CP_ACP, 0, path, -1, (LPWSTR)pwcsName, size);
+        
+         //Conversion ends here
+
+        CopyFile(pwcsName2, pwcsName, true);
+
+        //deleting lpwstr objects
+        delete [] pwcsName;
+        delete [] pwcsName2;
+        */
     }
+    cout<<"Copying completed!"<<endl;
     return 0;
 }
 
