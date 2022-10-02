@@ -8,9 +8,8 @@
 #include <cctype>
 #include <direct.h>
 #include <cstring>
-// #include <filesystem>
 using namespace std;
-// namespace fs = std::filesystem;
+
 queue<string> links_unvisited;
 map <string,int>links_visited;
 
@@ -58,7 +57,7 @@ string trim(string word){
 }
 
 
-void traverse(string file, string domain){
+void traverse(string file){
     // cout<<file<<endl;
     string word;
     ifstream readfile(file);
@@ -169,13 +168,13 @@ void copy(FILE *source, FILE *target)
 		} 
 		fclose(source); 
 		fclose(target); 
-		// printf("Copied successfully...\n"); 
+        return;
 	} 
 	else 
 	{ 
 		fclose(source); 
 		fclose(target); 
-		printf("Press any key to exit...\n"); 
+        return;
 	} 
 	 
 } 
@@ -185,65 +184,39 @@ int main(){
     char path[100];
     cout<<"Enter the path of the new folder";
     cin>>path;
-    // bool verify=create_directories(path);/
-    // verify= _mkdir(path);
     make_directory(path);
     while(verify==-1){
         cout<<"Folder not created: try again: "<<endl;
-        // cout<<"Error: "<<strerror(errno);
         cout<<"Enter the path of the new folder"<<endl;
         cin>>path;
-        // verify= _mkdir(path);
-        // bool verify=create_directories(path);
+        
     }
     cout<<"Folder created"<<endl;
-    string filename="index.php";
-    string domain="mindpowerindia.com";
+    cout<<"Enter the index file with extension: ";
+    string filename;
+    cin>>filename;
     links_visited[filename]=1;
-    traverse(filename, domain);        
+    traverse(filename);       
     while(!links_unvisited.empty()){   
         string ext=extension(links_unvisited.front()); //find out extensions of the files
         for(int i=0 ;i<ext.length(); i++){
             if(isalpha(ext[i]))ext[i]=tolower(ext[i]); //generalize the extension
         }
         if(ext!="png" && ext!="jpg" && ext!="jpeg" && ext!="css" &&ext!="js")     
-            traverse(links_unvisited.front(), domain);
+            traverse(links_unvisited.front() );
         links_unvisited.pop();
     }
 
     map <string,int>::iterator imp;
     cout<<"Copying has started. "<<endl;
     for(imp=links_visited.begin(); imp!=links_visited.end(); imp++){
-        // cout<<imp->first<<endl;
         int n=(imp->first).length();
         string str=imp->first;
         char temp[n+1];
         strcpy(temp, str.c_str()); 
         FILE *source = fopen(temp,"r+"); 
         FILE *target = fopen(path,"a+");
-        /*
-        //converting from *char to LPCWSTR to use in CopyFile function
-        const WCHAR *pwcsName;
-        const WCHAR *pwcsName2;
-        int size = MultiByteToWideChar(CP_ACP, 0, path, -1, NULL, 0);
-        pwcsName = new WCHAR[100];
-        pwcsName2 = new WCHAR[100];
-        string temp=imp->first;
-        char fName[1000];
-        for(int i=0;temp[i]!='\0'; i++ ){
-            fName[i]=temp[i];
-        }
-        MultiByteToWideChar(CP_ACP, 0, fName, -1, (LPWSTR)pwcsName2, size);
-        MultiByteToWideChar(CP_ACP, 0, path, -1, (LPWSTR)pwcsName, size);
-        
-         //Conversion ends here
-
-        CopyFile(pwcsName2, pwcsName, true);
-
-        //deleting lpwstr objects
-        delete [] pwcsName;
-        delete [] pwcsName2;
-        */
+        copy(source, target); 
     }
     cout<<"Copying completed!"<<endl;
     return 0;
